@@ -1,0 +1,2 @@
+# Requirements for BattleStation Console App
+# Add more packages as you add features
