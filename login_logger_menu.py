@@ -18,52 +18,58 @@ LOG_PATH = os.path.expanduser("~/ParanoidJarvisLogs/startup_log.txt")
 
 
 def enable_agent():
+    global last_action_log
+    console.clear()
+    last_action_log = ""
     try:
         if os.path.isfile(PLIST_PROJECT):
-            console.print(f"[blue]Moving plist from:[/blue] {PLIST_PROJECT}\n[blue]To:[/blue] {PLIST_LAUNCHAGENTS}")
+            last_action_log += f"[blue]Moving plist from:[/blue] {PLIST_PROJECT}\n[blue]To:[/blue] {PLIST_LAUNCHAGENTS}\n"
             try:
                 shutil.move(PLIST_PROJECT, PLIST_LAUNCHAGENTS)
             except Exception as move_err:
-                console.print(f"[red]Error moving plist: {move_err}[/red]")
+                last_action_log += f"[red]Error moving plist: {move_err}[/red]\n"
             if os.path.isfile(PLIST_LAUNCHAGENTS):
-                console.print(f"[green]Plist successfully moved to LaunchAgents.[/green]")
+                last_action_log += f"[green]Plist successfully moved to LaunchAgents.[/green]\n"
                 result = subprocess.run(["launchctl", "load", PLIST_LAUNCHAGENTS], capture_output=True, text=True)
                 if result.returncode == 0:
-                    console.print("[green]Startup logger ENABLED and loaded.[/green]")
+                    last_action_log += "[green]Startup logger ENABLED and loaded.[/green]\n"
                 else:
-                    console.print(f"[red]Failed to load LaunchAgent: {result.stderr.strip()}[/red]")
+                    last_action_log += f"[red]Failed to load LaunchAgent: {result.stderr.strip()}[/red]\n"
             else:
-                console.print(f"[red]Plist was not found at destination after move![/red]")
+                last_action_log += f"[red]Plist was not found at destination after move![/red]\n"
         elif os.path.isfile(PLIST_LAUNCHAGENTS):
-            console.print("[yellow]Already enabled.[/yellow]")
+            last_action_log += "[yellow]Already enabled.[/yellow]\n"
         else:
-            console.print(f"[red]Plist not found in project folder: {PLIST_PROJECT}\nCannot enable.[/red]")
+            last_action_log += f"[red]Plist not found in project folder: {PLIST_PROJECT}\nCannot enable.[/red]\n"
     except Exception as e:
-        console.print(f"[red]Error enabling logger: {e}[/red]")
+        last_action_log += f"[red]Error enabling logger: {e}[/red]\n"
 
 def disable_agent():
+    global last_action_log
+    console.clear()
+    last_action_log = ""
     try:
         if os.path.isfile(PLIST_LAUNCHAGENTS):
-            console.print(f"[blue]Moving plist from:[/blue] {PLIST_LAUNCHAGENTS}\n[blue]To:[/blue] {PLIST_PROJECT}")
+            last_action_log += f"[blue]Moving plist from:[/blue] {PLIST_LAUNCHAGENTS}\n[blue]To:[/blue] {PLIST_PROJECT}\n"
             result = subprocess.run(["launchctl", "unload", PLIST_LAUNCHAGENTS], capture_output=True, text=True)
             try:
                 shutil.move(PLIST_LAUNCHAGENTS, PLIST_PROJECT)
             except Exception as move_err:
-                console.print(f"[red]Error moving plist: {move_err}[/red]")
+                last_action_log += f"[red]Error moving plist: {move_err}[/red]\n"
             if os.path.isfile(PLIST_PROJECT):
-                console.print(f"[green]Plist successfully moved back to BattleStation folder.[/green]")
+                last_action_log += f"[green]Plist successfully moved back to BattleStation folder.[/green]\n"
                 if result.returncode == 0:
-                    console.print("[yellow]Startup logger DISABLED and unloaded.[/yellow]")
+                    last_action_log += "[yellow]Startup logger DISABLED and unloaded.[/yellow]\n"
                 else:
-                    console.print(f"[red]Failed to unload LaunchAgent: {result.stderr.strip()}[/red]")
+                    last_action_log += f"[red]Failed to unload LaunchAgent: {result.stderr.strip()}[/red]\n"
             else:
-                console.print(f"[red]Plist was not found at destination after move![/red]")
+                last_action_log += f"[red]Plist was not found at destination after move![/red]\n"
         elif os.path.isfile(PLIST_PROJECT):
-            console.print("[yellow]Already disabled.[/yellow]")
+            last_action_log += "[yellow]Already disabled.[/yellow]\n"
         else:
-            console.print(f"[red]Plist not found in LaunchAgents or project folder. Cannot disable.[/red]")
+            last_action_log += f"[red]Plist not found in LaunchAgents or project folder. Cannot disable.[/red]\n"
     except Exception as e:
-        console.print(f"[red]Error disabling logger: {e}[/red]")
+        last_action_log += f"[red]Error disabling logger: {e}[/red]\n"
 
 def status_agent():
     if os.path.isfile(PLIST_LAUNCHAGENTS):
@@ -88,11 +94,13 @@ def open_logs():
     else:
         console.print(f"[yellow]No log file found at {LOG_PATH}.[/yellow]")
 
+last_action_log = ""
 def login_logger_menu():
+    global last_action_log
     ensure_plist()
     while True:
         console.clear()
-        # Show status at the top
+        # Show status and last action log in the title box
         status = ""
         if os.path.isfile(PLIST_LAUNCHAGENTS):
             status = "[green]Status: ENABLED[/green]"
@@ -100,7 +108,10 @@ def login_logger_menu():
             status = "[yellow]Status: DISABLED[/yellow]"
         else:
             status = "[red]Status: NOT FOUND[/red]"
-        console.print(Panel.fit(f"[bold magenta]Login Logger[/bold magenta]\n{status}", subtitle="Startup Event Logger", padding=(1, 8), border_style="magenta"))
+        title_box = f"[bold magenta]Login Logger[/bold magenta]\n{status}"
+        if last_action_log:
+            title_box += f"\n\n{last_action_log.strip()}"
+        console.print(Panel.fit(title_box, subtitle="Startup Event Logger", padding=(1, 8), border_style="magenta"))
         table = Table(show_header=False, box=None, expand=True)
         table.add_row("[bold cyan]1.[/bold cyan] On (Enable)")
         table.add_row("[bold cyan]2.[/bold cyan] Off (Disable)")
@@ -113,6 +124,9 @@ def login_logger_menu():
         elif choice == "2":
             disable_agent()
         elif choice == "3":
+            console.clear()
             open_logs()
+            last_action_log = ""
         elif choice == "4":
+            last_action_log = ""
             break
