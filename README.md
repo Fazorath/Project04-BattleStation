@@ -1,32 +1,47 @@
-# BattleStation Console Application
+# TOP PRIORITY: Modular & Automated Setup
+
+- [ ] Automate fetching and setup of external modules (e.g., Paranoid-Jarvis) from within BattleStation
+- [ ] Implement a pluggable module system (auto-discover modules in a folder, no manual copying)
+- [ ] First-run setup wizard for easy onboarding
+
+
+# BattleStation Consdocs: add top priority section for modular and automated setup in READMEole Application
 
 ## Overview
-BattleStation is a customizable terminal-based console application designed to be your main command center when you log in to your laptop. It acts as a launcher and integration hub for all your personal CLI tools and productivity scripts.
+BattleStation is a modular, professional terminal-based command center for your Mac. It lets you launch, automate, and manage your favorite CLI tools and scripts from a beautiful, unified interface.
 
 ## Features
-- Modular: Easily integrate your own CLI apps and scripts
-- Centralized: Access all your tools from a single interface
-- Extensible: Add new features and apps as your needs grow
-- Example integrations: login logger, sleep shortcut, and more
+- Modular menu system with Rich-powered UI
+- Project Launcher: Instantly open your dev projects in VS Code
+- Login Logger: Enable/disable a LaunchAgent that logs logins and power events, with colored, verbose logs
+- Plist management: Easily move and load/unload LaunchAgents
+- Extensible: Add your own automations and scripts
 
 ## Getting Started
 1. Clone this repository
-2. Build and run the BattleStation console app (instructions coming soon)
-3. Start integrating your own CLI tools
+2. (Optional) Copy your Paranoid-Jarvis repo to `~/Desktop/Projects/Paranoid-Jarvis` for login logger integration
+3. Run `python main.py` (in your virtual environment)
+4. Use the menu to launch projects, manage logging, and more
 
 ## Integrating New Apps
-BattleStation is designed to let you plug in any CLI app or script. You can add new commands or modules by following the integration guide (to be documented).
+Add new modules by creating Python scripts and linking them in the menu. See `main.py` for examples.
 
 ## Example Apps
-- **Login Logger:** Track and log your login sessions automatically
-- **Sleep Shortcut:** Quickly put your laptop to sleep from the console
-- **More ideas:** System monitor, quick note taker, project launcher
+- **Login Logger:** Toggle a LaunchAgent that logs logins and power events (see colored logs in `~/ParanoidJarvisLogs/startup_log.txt`)
+- **Project Launcher:** Browse and open your dev projects in VS Code
+- **Sleep Shortcut:** (Coming soon) Instantly put your Mac to sleep from the menu
+
+## Immediate TODOs
+- [ ] Polish title graphics and logging visuals
+- [ ] Sleep shortcut integration
+- [ ] Automation: Launch BattleStation on startup
+- [ ] Add a custom log viewer in the menu
 
 ## Roadmap
-- [ ] Core console UI
-- [ ] Plugin/module system
-- [ ] Example integrations
-- [ ] Configuration file support
+- [x] Core console UI
+- [x] Modular login logger with colored logs
+- [x] Plist management and diagnostics
+- [ ] More automations and integrations
 - [ ] Documentation and usage guide
 
 ---
