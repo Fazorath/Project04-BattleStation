@@ -7,10 +7,11 @@ def clear_screen():
     print("\033c", end="")
 
 def print_main_menu():
-    print("\n=== BattleStation ===")
+    print("=== BattleStation ===\n")
     print("Your Modular Terminal Dashboard\n")
     print("1. Project Launcher")
     print("2. Login Logger")
+    print("3. Quick Launch")
     print("q. Quit")
 
 def get_choice(prompt, valid_choices, default=None):
@@ -24,7 +25,7 @@ def get_choice(prompt, valid_choices, default=None):
     return choice
 
 def print_project_menu(projects):
-    print("\n=== Project Launcher ===")
+    print("=== Project Launcher ===\n")
     for idx, proj in enumerate(projects, 1):
         print(f"{idx}. {proj}")
     print("q. Quit/Back")
@@ -51,6 +52,7 @@ def handle_project_launcher():
     proj_path = os.path.join(projects_dir, selected)
     print(f"Opening {selected} in VS Code...")
     os.system(f'code "{proj_path}"')
+    input("\nPress Enter to return to the Project Launcher menu...")
 
 def handle_login_logger():
     from login_logger_menu import login_logger_menu
@@ -59,15 +61,21 @@ def handle_login_logger():
 def handle_sleep_shortcut():
     print("[Sleep Shortcut] (Not implemented yet)")
 
+def handle_quick_launch():
+    from quick_launch import quick_launch_menu
+    quick_launch_menu()
+
 def main():
     while True:
         clear_screen()
         print_main_menu()
-        choice = get_choice("Select an option [1/2/q] (1): ", ["1", "2", "q"], default="1")
+        choice = get_choice("Select an option [1/2/3/q] (1): ", ["1", "2", "3", "q"], default="1")
         if choice == "1":
             handle_project_launcher()
         elif choice == "2":
             handle_login_logger()
+        elif choice == "3":
+            handle_quick_launch()
         elif choice == "q":
             print("Goodbye!")
             sys.exit(0)

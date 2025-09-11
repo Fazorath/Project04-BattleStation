@@ -97,9 +97,9 @@ def login_logger_menu():
             status = "DISABLED"
         else:
             status = "NOT FOUND"
-        print("\n=== Login Logger ===")
+        print("=== Login Logger ===\n")
         print("Startup Event Logger")
-        print(f"Status: {status}")
+        print(f"Status: {status}\n")
         if last_action_log:
             print(last_action_log.strip())
         print("1. On (Enable)")
