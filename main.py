@@ -41,7 +41,8 @@ def handle_project_launcher():
     os.system(f'code "{proj_path}"')
 
 def handle_login_logger():
-    console.print("[yellow][Login Logger][/yellow] (Not implemented yet)")
+    from login_logger_menu import login_logger_menu
+    login_logger_menu()
 
 def handle_sleep_shortcut():
     console.print("[yellow][Sleep Shortcut][/yellow] (Not implemented yet)")
