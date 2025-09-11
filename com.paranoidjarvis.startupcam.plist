@@ -6,16 +6,16 @@
     <string>com.paranoidjarvis.startupcam</string>
     <key>ProgramArguments</key>
     <array>
-    <string>/Users/exempt/Desktop/Projects/Paranoid-Jarvis/.venv/bin/python</string>
-        <string>/Users/exempt/Desktop/Projects/Paranoid-Jarvis/startup_cam_logger.py</string>
+        <string>/Users/exempt/Desktop/Projects/Project04-BattleStation/.venv/bin/python</string>
+        <string>/Users/exempt/Desktop/Projects/Project04-BattleStation/login_logger.py</string>
     </array>
     <key>RunAtLoad</key>
-    <false/>
+    <true/>
     <key>StandardOutPath</key>
     <string>/tmp/startupcam.log</string>
     <key>StandardErrorPath</key>
     <string>/tmp/startupcam.err</string>
     <key>WorkingDirectory</key>
-    <string>/Users/exempt/Desktop/Projects/Paranoid-Jarvis</string>
+    <string>/Users/exempt/Desktop/Projects/Project04-BattleStation</string>
 </dict>
 </plist>

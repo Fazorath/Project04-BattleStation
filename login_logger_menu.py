@@ -4,8 +4,7 @@ import subprocess
 import shutil
 from rich.prompt import Prompt
 from rich.console import Console
-from rich.table import Table
-from rich.panel import Panel
+from ui_helpers import render_unified_menu_panel
 from ensure_plist import ensure_plist
 
 console = Console()
@@ -23,26 +22,25 @@ def enable_agent():
     last_action_log = ""
     try:
         if os.path.isfile(PLIST_PROJECT):
-            last_action_log += f"[blue]Moving plist from:[/blue] {PLIST_PROJECT}\n[blue]To:[/blue] {PLIST_LAUNCHAGENTS}\n"
             try:
                 shutil.move(PLIST_PROJECT, PLIST_LAUNCHAGENTS)
             except Exception as move_err:
-                last_action_log += f"[red]Error moving plist: {move_err}[/red]\n"
+                last_action_log = f"[red]Error moving plist: {move_err}[/red]"
+                return
             if os.path.isfile(PLIST_LAUNCHAGENTS):
-                last_action_log += f"[green]Plist successfully moved to LaunchAgents.[/green]\n"
                 result = subprocess.run(["launchctl", "load", PLIST_LAUNCHAGENTS], capture_output=True, text=True)
                 if result.returncode == 0:
-                    last_action_log += "[green]Startup logger ENABLED and loaded.[/green]\n"
+                    last_action_log = "[green]Logger ENABLED and loaded.[/green]"
                 else:
-                    last_action_log += f"[red]Failed to load LaunchAgent: {result.stderr.strip()}[/red]\n"
+                    last_action_log = f"[red]Failed to load LaunchAgent: {result.stderr.strip()}[/red]"
             else:
-                last_action_log += f"[red]Plist was not found at destination after move![/red]\n"
+                last_action_log = f"[red]Plist was not found at destination after move![/red]"
         elif os.path.isfile(PLIST_LAUNCHAGENTS):
-            last_action_log += "[yellow]Already enabled.[/yellow]\n"
+            last_action_log = "[yellow]Logger already enabled.[/yellow]"
         else:
-            last_action_log += f"[red]Plist not found in project folder: {PLIST_PROJECT}\nCannot enable.[/red]\n"
+            last_action_log = f"[red]Plist not found in project folder: {PLIST_PROJECT}\nCannot enable.[/red]"
     except Exception as e:
-        last_action_log += f"[red]Error enabling logger: {e}[/red]\n"
+        last_action_log = f"[red]Error enabling logger: {e}[/red]"
 
 def disable_agent():
     global last_action_log
@@ -50,26 +48,25 @@ def disable_agent():
     last_action_log = ""
     try:
         if os.path.isfile(PLIST_LAUNCHAGENTS):
-            last_action_log += f"[blue]Moving plist from:[/blue] {PLIST_LAUNCHAGENTS}\n[blue]To:[/blue] {PLIST_PROJECT}\n"
             result = subprocess.run(["launchctl", "unload", PLIST_LAUNCHAGENTS], capture_output=True, text=True)
             try:
                 shutil.move(PLIST_LAUNCHAGENTS, PLIST_PROJECT)
             except Exception as move_err:
-                last_action_log += f"[red]Error moving plist: {move_err}[/red]\n"
+                last_action_log = f"[red]Error moving plist: {move_err}[/red]"
+                return
             if os.path.isfile(PLIST_PROJECT):
-                last_action_log += f"[green]Plist successfully moved back to BattleStation folder.[/green]\n"
                 if result.returncode == 0:
-                    last_action_log += "[yellow]Startup logger DISABLED and unloaded.[/yellow]\n"
+                    last_action_log = "[yellow]Logger DISABLED and unloaded.[/yellow]"
                 else:
-                    last_action_log += f"[red]Failed to unload LaunchAgent: {result.stderr.strip()}[/red]\n"
+                    last_action_log = f"[red]Failed to unload LaunchAgent: {result.stderr.strip()}[/red]"
             else:
-                last_action_log += f"[red]Plist was not found at destination after move![/red]\n"
+                last_action_log = f"[red]Plist was not found at destination after move![/red]"
         elif os.path.isfile(PLIST_PROJECT):
-            last_action_log += "[yellow]Already disabled.[/yellow]\n"
+            last_action_log = "[yellow]Logger already disabled.[/yellow]"
         else:
-            last_action_log += f"[red]Plist not found in LaunchAgents or project folder. Cannot disable.[/red]\n"
+            last_action_log = f"[red]Plist not found in LaunchAgents or project folder. Cannot disable.[/red]"
     except Exception as e:
-        last_action_log += f"[red]Error disabling logger: {e}[/red]\n"
+        last_action_log = f"[red]Error disabling logger: {e}[/red]"
 
 def status_agent():
     if os.path.isfile(PLIST_LAUNCHAGENTS):
@@ -100,25 +97,30 @@ def login_logger_menu():
     ensure_plist()
     while True:
         console.clear()
-        # Show status and last action log in the title box
-        status = ""
+        # Determine status string
         if os.path.isfile(PLIST_LAUNCHAGENTS):
-            status = "[green]Status: ENABLED[/green]"
+            status = "[green]ENABLED[/green]"
         elif os.path.isfile(PLIST_PROJECT):
-            status = "[yellow]Status: DISABLED[/yellow]"
+            status = "[yellow]DISABLED[/yellow]"
         else:
-            status = "[red]Status: NOT FOUND[/red]"
-        title_box = f"[bold magenta]Login Logger[/bold magenta]\n{status}"
-        if last_action_log:
-            title_box += f"\n\n{last_action_log.strip()}"
-        console.print(Panel.fit(title_box, subtitle="Startup Event Logger", padding=(1, 8), border_style="magenta"))
-        table = Table(show_header=False, box=None, expand=True)
-        table.add_row("[bold cyan]1.[/bold cyan] On (Enable)")
-        table.add_row("[bold cyan]2.[/bold cyan] Off (Disable)")
-        table.add_row("[bold cyan]3.[/bold cyan] Open Logs")
-        table.add_row("[bold cyan]4.[/bold cyan] Back")
-        console.print(table)
-        choice = Prompt.ask("[bold green]Select an option[/bold green]", choices=["1", "2", "3", "4"], default="4")
+            status = "[red]NOT FOUND[/red]"
+        # Menu items
+        menu_items = [
+            ("1", "On (Enable)"),
+            ("2", "Off (Disable)"),
+            ("3", "Open Logs"),
+            ("q", "Back")
+        ]
+        # Render unified menu panel with status as a Text object (markup enabled)
+        panel = render_unified_menu_panel(
+            title="Login Logger",
+            subtitle="Startup Event Logger",
+            menu_items=menu_items,
+            status=f"Status: {status}",
+            log=last_action_log.strip() if last_action_log else None
+        )
+        console.print(panel)
+        choice = Prompt.ask("[bold green]Select an option[/bold green]", choices=["1", "2", "3", "q"], default="q")
         if choice == "1":
             enable_agent()
         elif choice == "2":
@@ -127,6 +129,6 @@ def login_logger_menu():
             console.clear()
             open_logs()
             last_action_log = ""
-        elif choice == "4":
+        elif choice == "q":
             last_action_log = ""
             break
