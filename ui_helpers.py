@@ -21,10 +21,10 @@ def render_unified_menu_panel(title: str, subtitle: str, menu_items: list, statu
     subtitle_text = Text(subtitle, style="dim", justify="center")
     content = [Align.center(title_text), Align.center(subtitle_text)]
     if status:
-        # Render status with markup if present
         content.append(Text.from_markup(status, style="bold", justify="center"))
     if log:
-        content.append(Text(log, style="", justify="center"))
+        # Interpret markup in the log/summary line as well
+        content.append(Text.from_markup(log, justify="center"))
     content.append(Text(""))
     menu_table = Table.grid(padding=(0,2))
     menu_table.add_column(justify="center", ratio=1)
@@ -35,9 +35,7 @@ def render_unified_menu_panel(title: str, subtitle: str, menu_items: list, statu
     panel_content = Align.center(Group(*content), vertical="middle")
     return Panel(
         panel_content,
-        title=title,
         border_style="magenta",
         padding=(1, 8),
-        expand=True,
-        subtitle=subtitle
+        expand=True
     )

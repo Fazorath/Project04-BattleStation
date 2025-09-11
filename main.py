@@ -17,13 +17,12 @@ console = Console()
 
 
 def render_menu():
-    table = Table(show_header=False, box=None, expand=True)
     title = Text("BattleStation", style="bold magenta", justify="center")
     subtitle = Text("Your Modular Terminal Dashboard", style="dim", justify="center")
     menu_items = [
         ("1", "Project Launcher"),
         ("2", "Login Logger"),
-        ("Q", "Quit")
+        ("q", "Quit")
     ]
     menu_table = Table.grid(padding=(0,2))
     menu_table.add_column(justify="center", ratio=1)
@@ -42,11 +41,9 @@ def render_menu():
     )
     return Panel(
         panel_content,
-        title="BattleStation",
         border_style="magenta",
         padding=(1, 8),
-        expand=True,
-        subtitle="Your Modular Terminal Dashboard"
+        expand=True
     )
 
 
